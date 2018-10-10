@@ -13,8 +13,7 @@ namespace Miny
         public int ID;
         public int PocetPoli;
         public int PocetMin;
-
         public int Objeveno;
-        //public float Ratio { get; set; }
+        public float Ratio;
     }
 }

@@ -255,7 +255,7 @@ namespace Miny
             save.PocetMin = int.Parse(BombNum_.Text);
             save.Objeveno = reveled;
             save.PocetPoli = BtnList.Count;
-            //save.Ratio = save.PocetPoli / save.Objeveno;
+            save.Ratio = save.PocetPoli / save.Objeveno;
             ScoreList.Add(save);
 
 
