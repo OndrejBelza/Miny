@@ -426,6 +426,10 @@ namespace Miny
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             reveled = 0;
+            Cordinates.Clear();
+            FlaggedCordinates.Clear();
+            BtnsToCheckList.Clear();
+            BtnList.Clear();
             GenerateBombsCordinates();
             GenereateGridButtons();
             RegenerateGrid();
