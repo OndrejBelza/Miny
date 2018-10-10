@@ -9,9 +9,9 @@
     <Grid>
         <Grid HorizontalAlignment="Left" Height="345" Margin="10,10,0,0" VerticalAlignment="Top" Width="772" x:Name="test"/>
         <Button Content="Generate" HorizontalAlignment="Left" Margin="690,377,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
-        <TextBox HorizontalAlignment="Left" Height="20" Margin="125,377,0,0" TextWrapping="Wrap" Text="4" VerticalAlignment="Top" Width="120" x:Name="Height_"/>
+        <TextBox HorizontalAlignment="Left" Height="20" Margin="125,377,0,0" TextWrapping="Wrap" Text="8" VerticalAlignment="Top" Width="120" x:Name="Height_"/>
         <Label Content="Výška" HorizontalAlignment="Left" Margin="67,373,0,0" VerticalAlignment="Top" Height="30" />
-        <TextBox HorizontalAlignment="Left" Height="20" Margin="333,377,0,0" TextWrapping="Wrap" Text="4" VerticalAlignment="Top" Width="120" x:Name="Width_"/>
+        <TextBox HorizontalAlignment="Left" Height="20" Margin="333,377,0,0" TextWrapping="Wrap" Text="8" VerticalAlignment="Top" Width="120" x:Name="Width_"/>
         <Label Content="Šířka" HorizontalAlignment="Left" Margin="275,373,0,0" VerticalAlignment="Top" Height="30" />
         <TextBox HorizontalAlignment="Left" Height="20" Margin="549,377,0,0" TextWrapping="Wrap" Text="4" VerticalAlignment="Top" Width="120" x:Name="BombNum_"/>
         <Label Content="Počet bomb" HorizontalAlignment="Left" Margin="470,373,0,0" VerticalAlignment="Top" Height="30" />

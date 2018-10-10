@@ -1,5 +1,8 @@
-﻿using System;
+﻿using FileHelpers;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +24,11 @@ namespace Miny
     public partial class MainWindow : Window
     {
         List<cor> Cordinates = new List<cor>();
-        List<Button> BtnList = new List<Button>();
+        List<cor> FlaggedCordinates = new List<cor>();
+        List<PlayGroundButton> BtnList = new List<PlayGroundButton>();
+        List<PlayGroundButton> BtnsToCheckList = new List<PlayGroundButton>();
+        ObservableCollection<Save> ScoreList = new ObservableCollection<Save>();
+        private int reveled = 0;
         class cor
         {
             public int row { get; set; }
@@ -48,6 +55,7 @@ namespace Miny
         {
             test.ColumnDefinitions.Clear();
             test.RowDefinitions.Clear();
+            test.Children.Clear();
             int DH = int.Parse(Height_.Text);
             int DW = int.Parse(Width_.Text);
 
@@ -74,6 +82,192 @@ namespace Miny
            
            
         }
+
+        private void SomeThingToCheck()
+        {
+            if (BtnsToCheckList.Count > 0)
+            {
+                CheckButton(BtnsToCheckList[0]);
+            }
+        }
+
+        private void CheckFlagedList()
+        {
+            int Goal = Cordinates.Count;
+            int Match = 0;
+            foreach (cor flagedcor in FlaggedCordinates)
+            {
+                foreach (cor bombcor in Cordinates)
+                {
+                    if (bombcor.col == flagedcor.col && bombcor.row == flagedcor.row)
+                    {
+                        Match++;
+                    }
+                }
+            }
+
+            if (Match == Goal)
+            {
+                MessageBox.Show("Konec hry - výhra", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                WriteScore();
+            }
+        }
+        private void MouseRightClick(object sender, MouseEventArgs e)
+        {
+            PlayGroundButton button = (PlayGroundButton)sender;
+            if (button.Background != Brushes.Red)
+            {
+                button.Background = Brushes.Red;
+                cor minecor = new cor();
+                minecor.col = button.Col_;
+                minecor.row = button.Row_;
+                FlaggedCordinates.Add(minecor);
+                if (FlaggedCordinates.Count == Cordinates.Count)
+                {
+                    CheckFlagedList();
+                }
+
+            }
+            else
+            {
+                cor loadcor = null;
+                button.ClearValue(Button.BackgroundProperty);
+                foreach (cor flagedcor in FlaggedCordinates)
+                {
+                    if (flagedcor.row == button.Row_ && flagedcor.col == button.Col_)
+                    {
+                        loadcor = flagedcor;
+                    }
+                }
+                
+                FlaggedCordinates.Remove(loadcor);
+            }
+            
+        }
+
+        private void CheckButton(PlayGroundButton btn)
+        {
+            int bombcnt = 0;
+            if (!btn.IsBomb)
+            {
+                btn.IsEnabled = false;
+                reveled++;
+                if (reveled == (BtnList.Count - int.Parse(BombNum_.Text)))
+                {
+                    MessageBox.Show("Konec hry - výhra", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    WriteScore();
+                }
+            }
+            
+
+            foreach (PlayGroundButton button in BtnList)
+            {
+                //Napravo
+                if (button.Row_ == btn.Row_ && btn.Col_ == button.Col_ -1)
+                {
+                    if (button.IsBomb)
+                    {
+                        bombcnt++;
+                    }
+                    else
+                    {
+                        if (button.IsEnabled)
+                        {
+                            BtnsToCheckList.Add(button);
+                        }
+                    }
+                }
+                //Nalevo
+                if (button.Row_ == btn.Row_ && btn.Col_ == button.Col_ + 1)
+                {
+                    if (button.IsBomb)
+                    {
+                        bombcnt++;
+                    }
+                    else
+                    {
+                        if (button.IsEnabled)
+                        {
+                            BtnsToCheckList.Add(button);
+                        }
+                    }
+                }
+                //Nahoře
+                if (button.Row_ + 1 == btn.Row_ && btn.Col_ == button.Col_)
+                {
+                    if (button.IsBomb)
+                    {
+                        bombcnt++;
+                    }
+                    else
+                    {
+                        if (button.IsEnabled)
+                        {
+                            BtnsToCheckList.Add(button);
+                        }
+                    }                  
+                }
+                //Dole
+                if (button.Row_ - 1 == btn.Row_ && btn.Col_ == button.Col_)
+                {
+                    if (button.IsBomb)
+                    {
+                        bombcnt++;
+                    }
+                    else
+                    {
+                        if (button.IsEnabled)
+                        {
+                            BtnsToCheckList.Add(button);
+                        }
+                    }
+                }
+                //Dole rohy
+                if (button.Row_ - 1 == btn.Row_ && (btn.Col_ == button.Col_ - 1 || btn.Col_ == button.Col_ + 1))
+                {
+                    if (button.IsBomb)
+                    {
+                        bombcnt++;
+                    }
+                }
+                //Nahoře rohy
+                if (button.Row_ + 1== btn.Row_ && (btn.Col_ == button.Col_ - 1 || btn.Col_ == button.Col_ + 1))
+                {
+                    if (button.IsBomb)
+                    {
+                        bombcnt++;
+                    }
+                }
+
+                btn.Content = bombcnt;
+            }
+
+            
+            BtnsToCheckList.Remove(btn);
+            SomeThingToCheck();
+
+        }
+
+
+        private void WriteScore()
+        {
+            Save save = new Save();
+            save.PocetMin = int.Parse(BombNum_.Text);
+            save.Objeveno = reveled;
+            save.PocetPoli = BtnList.Count;
+            //save.Ratio = save.PocetPoli / save.Objeveno;
+            ScoreList.Add(save);
+
+
+            var json = JsonConvert.SerializeObject(ScoreList);
+
+            //string json = JsonConvert.SerializeObject(NewCar);
+            string directory = System.IO.Directory.GetParent(System.IO.Directory.GetParent(Environment.CurrentDirectory).ToString()).ToString();
+            directory = System.IO.Directory.GetParent(directory).ToString();
+
+            System.IO.File.WriteAllText(directory + "/json.txt", json);
+        }
+        
         private void PlayGroundButtonClick(object sender, EventArgs e)
         {
             var BombCount = 0;
@@ -99,52 +293,30 @@ namespace Miny
                 {
                     IsBomb = true;
                 }
+
             }
             if (IsBomb)
             {
-                MessageBox.Show("Bomb?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                MessageBox.Show("Objevil si bombu - konec hry", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                WriteScore();
+                /*GenerateBombsCordinates();
+                GenereateGridButtons();
+                RegenerateGrid();*/
             }
             else
             {
                 
-                button.IsEnabled = false;
-                foreach(PlayGroundButton btn in BtnList)
-                {
-                    if(btn_c == btn.Col_)
-                    {
-                        if (btn_r == btn.Row_ + 1)
-                        {
-                            if (btn.IsBomb)
-                            {
-                                BombCount++;
-                            }
-                            else
-                            {
-                                btn.IsEnabled = false;
-                            }
-                        }else if(btn_r == btn.Row_ - 1)
-                        {
-                            if (btn.IsBomb)
-                            {
-                                BombCount++;
-                            }
-                            else
-                            {
-                                btn.IsEnabled = false;
-                            }
-                        }
-                    }
-                    
-                    
+                CheckButton(button);
 
-                    
-                }
             }
-            button.Content = BombCount.ToString();
+
+            
+            
            
         }
         private void GenerateBombsCordinates()
         {
+            Cordinates.Clear();
             int DH = int.Parse(Height_.Text);
             int DW = int.Parse(Width_.Text);
             int BombNum = int.Parse(BombNum_.Text);
@@ -204,12 +376,7 @@ namespace Miny
 
         private void GenereateGridButtons()
         {
-           
-
-            
-
-            
-
+           BtnList.Clear();
             int DH = int.Parse(Height_.Text);
             int DW = int.Parse(Width_.Text);
             
@@ -221,14 +388,15 @@ namespace Miny
                 {
 
                     PlayGroundButton MyControl1 = new PlayGroundButton();
-                    MyControl1.Content = "Btn" + count.ToString();
+                   
                     MyControl1.Name = "Btn" + count.ToString();
                     MyControl1.IsBomb = false;
                     MyControl1.Row_ = i;
                     MyControl1.Col_ = j;
                     MyControl1.Click += new RoutedEventHandler(PlayGroundButtonClick);
+                    MyControl1.MouseRightButtonDown += new MouseButtonEventHandler(MouseRightClick);
 
-                    
+
 
 
                     foreach (cor bombcor in Cordinates)
@@ -238,7 +406,7 @@ namespace Miny
                             if(bombcor.col == j)
                             {
                                 MyControl1.IsBomb = true;
-                                MyControl1.Content = "Bomb!";
+                                
                             }
                         }
                     }
@@ -257,6 +425,7 @@ namespace Miny
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            reveled = 0;
             GenerateBombsCordinates();
             GenereateGridButtons();
             RegenerateGrid();

@@ -1,0 +1,1 @@
+[{"ID":0,"PocetPoli":64,"PocetMin":4,"Objeveno":60}]
