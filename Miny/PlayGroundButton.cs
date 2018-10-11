@@ -14,6 +14,7 @@ namespace Miny
         public int Row_ { get; set; }
         public int Col_ { get; set; }
         public bool IsBomb { get; set; }
+        public bool HasFalg { get; set; }
         
     }
 }

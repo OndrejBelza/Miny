@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Windows.Resources;
 using System.Windows.Shapes;
 
 namespace Miny
@@ -53,21 +54,27 @@ namespace Miny
 
         private void RegenerateGrid()
         {
+            
             test.ColumnDefinitions.Clear();
             test.RowDefinitions.Clear();
             test.Children.Clear();
             int DH = int.Parse(Height_.Text);
             int DW = int.Parse(Width_.Text);
+            test.Width = (DW*30);
+            test.Height = (DH * 30);
 
             while (DH != 0)
             {
                 RowDefinition gridRow1 = new RowDefinition();
+                gridRow1.Height = new GridLength(1.0, GridUnitType.Star);
                 test.RowDefinitions.Add(gridRow1);
                 DH--;
             }
             while (DW != 0)
             {
                 ColumnDefinition gridRow1 = new ColumnDefinition();
+                gridRow1.Width = new GridLength(1.0, GridUnitType.Star);
+
                 test.ColumnDefinitions.Add(gridRow1);
                 DW--;
             }
@@ -108,16 +115,29 @@ namespace Miny
 
             if (Match == Goal)
             {
-                MessageBox.Show("Konec hry - výhra", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                WriteScore();
+                int btnstoreveled = BtnList.Count - Cordinates.Count;
+                if (reveled == btnstoreveled)
+                {
+                    MessageBox.Show("Konec hry - výhra", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    WriteScore();
+                }
+                
             }
         }
         private void MouseRightClick(object sender, MouseEventArgs e)
         {
             PlayGroundButton button = (PlayGroundButton)sender;
-            if (button.Background != Brushes.Red)
+            if (button.HasFalg == false)
             {
-                button.Background = Brushes.Red;
+                Uri resourceUri = new Uri("Images/flag.png", UriKind.Relative);
+                StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+                BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+                var brush = new ImageBrush();
+                brush.ImageSource = temp;
+                button.Background = brush;
+                button.HasFalg = true;
+                
+
                 cor minecor = new cor();
                 minecor.col = button.Col_;
                 minecor.row = button.Row_;
@@ -130,8 +150,16 @@ namespace Miny
             }
             else
             {
+                Uri resourceUri = new Uri("Images/test.png", UriKind.Relative);
+                StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+                BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+                var brush = new ImageBrush();
+                brush.ImageSource = temp;
+                button.Background = brush;
+                button.HasFalg = false;
+
                 cor loadcor = null;
-                button.ClearValue(Button.BackgroundProperty);
+               
                 foreach (cor flagedcor in FlaggedCordinates)
                 {
                     if (flagedcor.row == button.Row_ && flagedcor.col == button.Col_)
@@ -147,12 +175,18 @@ namespace Miny
 
         private void CheckButton(PlayGroundButton btn)
         {
+            List<PlayGroundButton> list = new List<PlayGroundButton>();
+            if (btn.IsEnabled)
+            {
+                reveled++;
+            }
             int bombcnt = 0;
             if (!btn.IsBomb)
             {
                 btn.IsEnabled = false;
-                reveled++;
-                if (reveled == (BtnList.Count - int.Parse(BombNum_.Text)))
+                int btnstoreveled = BtnList.Count - Cordinates.Count;
+                
+                if (reveled == btnstoreveled)
                 {
                     MessageBox.Show("Konec hry - výhra", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     WriteScore();
@@ -173,7 +207,7 @@ namespace Miny
                     {
                         if (button.IsEnabled)
                         {
-                            BtnsToCheckList.Add(button);
+                            list.Add(button);
                         }
                     }
                 }
@@ -188,7 +222,7 @@ namespace Miny
                     {
                         if (button.IsEnabled)
                         {
-                            BtnsToCheckList.Add(button);
+                            list.Add(button);
                         }
                     }
                 }
@@ -203,7 +237,7 @@ namespace Miny
                     {
                         if (button.IsEnabled)
                         {
-                            BtnsToCheckList.Add(button);
+                            list.Add(button);
                         }
                     }                  
                 }
@@ -218,7 +252,7 @@ namespace Miny
                     {
                         if (button.IsEnabled)
                         {
-                            BtnsToCheckList.Add(button);
+                            list.Add(button);
                         }
                     }
                 }
@@ -239,9 +273,19 @@ namespace Miny
                     }
                 }
 
+               
+            }
+            if(bombcnt == 0)
+            {
+                foreach(PlayGroundButton btsn in list)
+                {
+                    BtnsToCheckList.Add(btsn);
+                }
+            }
+            if(bombcnt > 0)
+            {
                 btn.Content = bombcnt;
             }
-
             
             BtnsToCheckList.Remove(btn);
             SomeThingToCheck();
@@ -255,7 +299,7 @@ namespace Miny
             save.PocetMin = int.Parse(BombNum_.Text);
             save.Objeveno = reveled;
             save.PocetPoli = BtnList.Count;
-            save.Ratio = save.PocetPoli / save.Objeveno;
+            //save.Ratio = save.PocetPoli / save.Objeveno;
             ScoreList.Add(save);
 
 
@@ -270,45 +314,50 @@ namespace Miny
         
         private void PlayGroundButtonClick(object sender, EventArgs e)
         {
+            
             var BombCount = 0;
             PlayGroundButton button = sender as PlayGroundButton;
-            int btn_r = button.Row_;
-            int btn_c = button.Col_;
-            bool RowMatch = false;
-            bool ColMatch = false;
-            bool IsBomb = false;
-            foreach(cor test in Cordinates)
+            if(button.HasFalg == false)
             {
-                RowMatch = false;
-                ColMatch = false;
-                if (btn_r == test.row)
+                int btn_r = button.Row_;
+                int btn_c = button.Col_;
+                bool RowMatch = false;
+                bool ColMatch = false;
+                bool IsBomb = false;
+                foreach (cor test in Cordinates)
                 {
-                    RowMatch = true;
-                }
-                if (btn_c == test.col)
-                {
-                    ColMatch = true;
-                }
-                if(RowMatch && ColMatch)
-                {
-                    IsBomb = true;
-                }
+                    RowMatch = false;
+                    ColMatch = false;
+                    if (btn_r == test.row)
+                    {
+                        RowMatch = true;
+                    }
+                    if (btn_c == test.col)
+                    {
+                        ColMatch = true;
+                    }
+                    if (RowMatch && ColMatch)
+                    {
+                        IsBomb = true;
+                    }
 
-            }
-            if (IsBomb)
-            {
-                MessageBox.Show("Objevil si bombu - konec hry", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                WriteScore();
-                /*GenerateBombsCordinates();
-                GenereateGridButtons();
-                RegenerateGrid();*/
-            }
-            else
-            {
-                
-                CheckButton(button);
+                }
+                if (IsBomb)
+                {
+                    MessageBox.Show("Objevil si bombu - konec hry", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    WriteScore();
+                    /*GenerateBombsCordinates();
+                    GenereateGridButtons();
+                    RegenerateGrid();*/
+                }
+                else
+                {
 
+                    CheckButton(button);
+
+                }
             }
+            
 
             
             
@@ -379,7 +428,12 @@ namespace Miny
            BtnList.Clear();
             int DH = int.Parse(Height_.Text);
             int DW = int.Parse(Width_.Text);
-            
+            Uri resourceUri = new Uri("Images/test.png", UriKind.Relative);
+            StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+            BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+            var brush = new ImageBrush();
+            brush.ImageSource = temp;
+
 
             int count = 1;
             for (int i = 0; i < DH; i++)
@@ -395,6 +449,10 @@ namespace Miny
                     MyControl1.Col_ = j;
                     MyControl1.Click += new RoutedEventHandler(PlayGroundButtonClick);
                     MyControl1.MouseRightButtonDown += new MouseButtonEventHandler(MouseRightClick);
+                    MyControl1.HasFalg = false;
+                    MyControl1.Background = brush;
+
+
 
 
 
