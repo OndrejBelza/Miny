@@ -25,13 +25,13 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 
                 <Label Content="Výška" HorizontalAlignment="Left"  VerticalAlignment="Top" Height="30" />
-                <TextBox HorizontalAlignment="Left" Height="28"  TextWrapping="Wrap" Text="9" VerticalAlignment="Top" Width="60" x:Name="Height_" VerticalContentAlignment="Center"/>
+                <TextBox HorizontalAlignment="Left" Height="28"  TextWrapping="Wrap" Text="16" VerticalAlignment="Top" Width="60" x:Name="Height_" VerticalContentAlignment="Center"/>
 
                 <Label Content="Šířka" HorizontalAlignment="Left"  VerticalAlignment="Top" Height="30" />
-                <TextBox HorizontalAlignment="Left" Height="27"  TextWrapping="Wrap" Text="9" VerticalAlignment="Top" Width="60" x:Name="Width_" VerticalContentAlignment="Center"/>
+                <TextBox HorizontalAlignment="Left" Height="27"  TextWrapping="Wrap" Text="16" VerticalAlignment="Top" Width="60" x:Name="Width_" VerticalContentAlignment="Center"/>
                 
                 <Label Content="Počet bomb" HorizontalAlignment="Left"  VerticalAlignment="Top" Height="30" />
-                <TextBox HorizontalAlignment="Left" Height="29"  TextWrapping="Wrap" Text="10" VerticalAlignment="Top" Width="60" x:Name="BombNum_" VerticalContentAlignment="Center"/>
+                <TextBox HorizontalAlignment="Left" Height="29"  TextWrapping="Wrap" Text="40" VerticalAlignment="Top" Width="60" x:Name="BombNum_" VerticalContentAlignment="Center"/>
 
                 
             </StackPanel>

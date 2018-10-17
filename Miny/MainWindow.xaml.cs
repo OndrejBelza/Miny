@@ -378,7 +378,20 @@ namespace Miny
             {
                 foreach(PlayGroundButton btsn in list)
                 {
-                    BtnsToCheckList.Add(btsn);
+                    
+                    bool uniqe = true;
+                    foreach (PlayGroundButton butt in BtnsToCheckList)
+                    {
+                        if (btsn == butt)
+                        {
+                            uniqe = false;
+                        } 
+                    }
+
+                    if (uniqe)
+                    {
+                        BtnsToCheckList.Add(btsn);
+                    }
                 }
             }
             if(bombcnt > 0)

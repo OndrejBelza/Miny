@@ -1,1 +1,1 @@
-[{"ID":0,"PocetPoli":81,"PocetMin":10,"Objeveno":68,"Ratio":0.0},{"ID":0,"PocetPoli":81,"PocetMin":10,"Objeveno":71,"Ratio":0.0},{"ID":0,"PocetPoli":81,"PocetMin":10,"Objeveno":58,"Ratio":0.0},{"ID":0,"PocetPoli":81,"PocetMin":10,"Objeveno":71,"Ratio":0.0},{"ID":0,"PocetPoli":81,"PocetMin":10,"Objeveno":71,"Ratio":0.0},{"ID":0,"PocetPoli":81,"PocetMin":10,"Objeveno":71,"Ratio":0.0},{"ID":0,"PocetPoli":81,"PocetMin":10,"Objeveno":71,"Ratio":0.0}]
+[{"ID":0,"PocetPoli":256,"PocetMin":40,"Objeveno":131,"Ratio":0.0}]
