@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -16,6 +18,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Resources;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace Miny
 {
@@ -29,7 +32,12 @@ namespace Miny
         List<PlayGroundButton> BtnList = new List<PlayGroundButton>();
         List<PlayGroundButton> BtnsToCheckList = new List<PlayGroundButton>();
         ObservableCollection<Save> ScoreList = new ObservableCollection<Save>();
+        DispatcherTimer timer = new DispatcherTimer();
+        private bool firstlick = true;
+        private cor BlockedCor = new cor();
         private int reveled = 0;
+        private int bombtodiscover;
+        private int time = 0;
         class cor
         {
             public int row { get; set; }
@@ -38,20 +46,94 @@ namespace Miny
         public MainWindow()
         {
             InitializeComponent();
-            GenerateBombsCordinates();
+            reveled = 0;
+            Cordinates.Clear();
+            FlaggedCordinates.Clear();
+            BtnsToCheckList.Clear();
+            BtnList.Clear();
             GenereateGridButtons();
             RegenerateGrid();
+            firstlick = true;
+            bombtodiscover = int.Parse(BombNum_.Text);
+            EditBmbCnt();
+            Smile.Source = new BitmapImage(new Uri(@"/Images/smileface.jpg", UriKind.Relative));
+            Smile.MouseDown += SmileClick;
 
 
 
 
+            
+            timer.Interval = TimeSpan.FromSeconds(1);
+            timer.Tick += new System.EventHandler(timer_Tick);
+            
 
+            SetupTimer();
 
 
 
         }
         Random rnd = new Random();
+        void timer_Tick(object sender, EventArgs e)
+        {
+            time++;
+            SetupTimer();
+        }
 
+        private void SetupTimer()
+        {
+            var timeinstr = time.ToString();
+            if (time < 10)
+            {
+                FirstTimeCnt.Source = new BitmapImage(new Uri(@"/Images/cislo0.jpg", UriKind.Relative));
+                SecondTimeCnt.Source = new BitmapImage(new Uri(@"/Images/cislo0.jpg", UriKind.Relative));
+                ThirdTimeCnt.Source = new BitmapImage(new Uri(@"/Images/cislo"+ timeinstr + ".jpg", UriKind.Relative));
+            }
+            else if (time < 100)
+            {
+                FirstTimeCnt.Source = new BitmapImage(new Uri(@"/Images/cislo0.jpg", UriKind.Relative));
+                SecondTimeCnt.Source = new BitmapImage(new Uri(@"/Images/cislo"+ timeinstr[0] + ".jpg", UriKind.Relative));
+                ThirdTimeCnt.Source = new BitmapImage(new Uri(@"/Images/cislo" + timeinstr[1] + ".jpg", UriKind.Relative));
+            }
+            else if(time < 1000)
+            {
+                FirstTimeCnt.Source = new BitmapImage(new Uri(@"/Images/cislo"+ timeinstr[0] + ".jpg", UriKind.Relative));
+                SecondTimeCnt.Source = new BitmapImage(new Uri(@"/Images/cislo" + timeinstr[1] + ".jpg", UriKind.Relative));
+                ThirdTimeCnt.Source = new BitmapImage(new Uri(@"/Images/cislo" + timeinstr[2] + ".jpg", UriKind.Relative));
+            }
+        }
+        private void SmileClick(object sender, MouseEventArgs e)
+        {
+            timer.Stop();
+            Smile.Source = new BitmapImage(new Uri(@"/Images/clickface.jpg", UriKind.Relative));
+            reveled = 0;
+            Cordinates.Clear();
+            FlaggedCordinates.Clear();
+            BtnsToCheckList.Clear();
+            BtnList.Clear();
+            GenerateBombsCordinates();
+            GenereateGridButtons();
+            RegenerateGrid();
+            bombtodiscover = int.Parse(BombNum_.Text);
+            EditBmbCnt();
+            firstlick = true;
+            time = 0;
+            Smile.Source = new BitmapImage(new Uri(@"/Images/smileface.jpg", UriKind.Relative));
+            SetupTimer();
+        }
+        private void EditBmbCnt()
+        {
+            if (bombtodiscover < 10)
+            {
+                FirstBombCnt.Source = new BitmapImage(new Uri(@"/Images/cislo0.jpg", UriKind.Relative));
+                SecondBombCnt.Source = new BitmapImage(new Uri(@"/Images/cislo"+ bombtodiscover +".jpg", UriKind.Relative));
+            }
+            else
+            {
+                var test = bombtodiscover.ToString();
+                FirstBombCnt.Source = new BitmapImage(new Uri(@"/Images/cislo"+ test[0] + ".jpg", UriKind.Relative));
+                SecondBombCnt.Source = new BitmapImage(new Uri(@"/Images/cislo" + test[1] + ".jpg", UriKind.Relative));
+            }
+        }
         private void RegenerateGrid()
         {
             
@@ -118,7 +200,9 @@ namespace Miny
                 int btnstoreveled = BtnList.Count - Cordinates.Count;
                 if (reveled == btnstoreveled)
                 {
-                    MessageBox.Show("Konec hry - výhra", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    //MessageBox.Show("Konec hry - výhra", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    Smile.Source = new BitmapImage(new Uri(@"/Images/winface.jpg", UriKind.Relative));
+                    timer.Stop();
                     WriteScore();
                 }
                 
@@ -129,13 +213,14 @@ namespace Miny
             PlayGroundButton button = (PlayGroundButton)sender;
             if (button.HasFalg == false)
             {
-                Uri resourceUri = new Uri("Images/flag.png", UriKind.Relative);
+                Uri resourceUri = new Uri("Images/flag.jpg", UriKind.Relative);
                 StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
                 BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
                 var brush = new ImageBrush();
                 brush.ImageSource = temp;
                 button.Background = brush;
                 button.HasFalg = true;
+                bombtodiscover--;
                 
 
                 cor minecor = new cor();
@@ -150,7 +235,8 @@ namespace Miny
             }
             else
             {
-                Uri resourceUri = new Uri("Images/test.png", UriKind.Relative);
+                bombtodiscover++;
+                Uri resourceUri = new Uri("Images/tile.jpg", UriKind.Relative);
                 StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
                 BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
                 var brush = new ImageBrush();
@@ -170,25 +256,38 @@ namespace Miny
                 
                 FlaggedCordinates.Remove(loadcor);
             }
-            
+
+            EditBmbCnt();
+
+
         }
 
         private void CheckButton(PlayGroundButton btn)
         {
             List<PlayGroundButton> list = new List<PlayGroundButton>();
-            if (btn.IsEnabled)
+            if (!btn.Checked)
             {
                 reveled++;
             }
             int bombcnt = 0;
             if (!btn.IsBomb)
             {
-                btn.IsEnabled = false;
+                
+                //btn.IsEnabled = false;
+                
+                btn.Click -= PlayGroundButtonClick;
+                btn.MouseRightButtonDown -= MouseRightClick;
+                btn.Checked = true;
+                btn.Focusable = false;
+                
+
                 int btnstoreveled = BtnList.Count - Cordinates.Count;
                 
                 if (reveled == btnstoreveled)
                 {
-                    MessageBox.Show("Konec hry - výhra", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    //MessageBox.Show("Konec hry - výhra", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    Smile.Source = new BitmapImage(new Uri(@"/Images/winface.jpg", UriKind.Relative));
+                    timer.Stop();
                     WriteScore();
                 }
             }
@@ -205,7 +304,7 @@ namespace Miny
                     }
                     else
                     {
-                        if (button.IsEnabled)
+                        if (!button.Checked)
                         {
                             list.Add(button);
                         }
@@ -220,7 +319,7 @@ namespace Miny
                     }
                     else
                     {
-                        if (button.IsEnabled)
+                        if (!button.Checked)
                         {
                             list.Add(button);
                         }
@@ -235,7 +334,7 @@ namespace Miny
                     }
                     else
                     {
-                        if (button.IsEnabled)
+                        if (!button.Checked)
                         {
                             list.Add(button);
                         }
@@ -250,7 +349,7 @@ namespace Miny
                     }
                     else
                     {
-                        if (button.IsEnabled)
+                        if (!button.Checked)
                         {
                             list.Add(button);
                         }
@@ -284,11 +383,30 @@ namespace Miny
             }
             if(bombcnt > 0)
             {
-                btn.Content = bombcnt;
+                //btn.Content = bombcnt;
+                Uri resourceUri = new Uri("Images/bmbcnt"+ bombcnt +".jpg", UriKind.Relative);
+                StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+                BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+                var brush = new ImageBrush();
+                brush.ImageSource = temp;
+                btn.Background = brush;
+
+
+            }
+            else
+            {
+                //btn.Content = bombcnt;
+                Uri resourceUri = new Uri("Images/emptytile.jpg", UriKind.Relative);
+                StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
+                BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
+                var brush = new ImageBrush();
+                brush.ImageSource = temp;
+                btn.Background = brush;
             }
             
             BtnsToCheckList.Remove(btn);
             SomeThingToCheck();
+            Smile.Source = new BitmapImage(new Uri(@"/Images/smileface.jpg", UriKind.Relative));
 
         }
 
@@ -314,10 +432,37 @@ namespace Miny
         
         private void PlayGroundButtonClick(object sender, EventArgs e)
         {
-            
+            Smile.Source = new BitmapImage(new Uri(@"/Images/clickface.jpg", UriKind.Relative));
             var BombCount = 0;
             PlayGroundButton button = sender as PlayGroundButton;
-            if(button.HasFalg == false)
+            if (firstlick)
+            {
+
+                BlockedCor.row = button.Row_;
+                BlockedCor.col = button.Col_;
+                reveled = 0;
+                Cordinates.Clear();
+                FlaggedCordinates.Clear();
+                BtnsToCheckList.Clear();
+                BtnList.Clear();
+                GenerateBombsCordinates();
+                GenereateGridButtons();
+                RegenerateGrid();
+                bombtodiscover = int.Parse(BombNum_.Text);
+                EditBmbCnt();
+                firstlick = false;
+                timer.Start();
+                foreach (PlayGroundButton but in BtnList)
+                {
+                    if (but.Col_ == BlockedCor.col && but.Row_ == BlockedCor.row)
+                    {
+                        button = but;
+                    }
+                }
+            }
+
+            
+            if (button.HasFalg == false)
             {
                 int btn_r = button.Row_;
                 int btn_c = button.Col_;
@@ -344,7 +489,62 @@ namespace Miny
                 }
                 if (IsBomb)
                 {
-                    MessageBox.Show("Objevil si bombu - konec hry", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    //MessageBox.Show("Objevil si bombu - konec hry", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    Smile.Source = new BitmapImage(new Uri(@"/Images/lostface.jpg", UriKind.Relative));
+                    timer.Stop();
+                    Uri resourceUri;
+                    StreamResourceInfo streamInfo;
+                    BitmapFrame temp;
+                    var brush = new ImageBrush();
+                    
+                   
+                    foreach (PlayGroundButton butt in BtnList)
+                    {
+                        bool goodguess = false;
+                        foreach (cor bmbcor in Cordinates)
+                        {
+                            
+                            if (butt.Col_ == bmbcor.col && butt.Row_ == bmbcor.row)
+                            {
+                                if (butt.HasFalg)
+                                {
+                                    
+                                }
+                                else
+                                {
+                                    resourceUri = new Uri("Images/bmb.jpg", UriKind.Relative);
+                                    streamInfo = Application.GetResourceStream(resourceUri);
+                                    temp = BitmapFrame.Create(streamInfo.Stream);
+                                    brush = new ImageBrush();
+                                    brush.ImageSource = temp;
+                                    butt.Background = brush;
+                                }
+                            }
+
+                            if (butt.HasFalg == true && butt.Col_ == bmbcor.col && butt.Row_ == bmbcor.row)
+                            {
+                                goodguess = true;
+                            }
+                        }
+
+                        if (butt.HasFalg && !goodguess)
+                        {
+                            resourceUri = new Uri("Images/badguess.jpg", UriKind.Relative);
+                            streamInfo = Application.GetResourceStream(resourceUri);
+                            temp = BitmapFrame.Create(streamInfo.Stream);
+                            brush = new ImageBrush();
+                            brush.ImageSource = temp;
+                            butt.Background = brush;
+                        }
+                        
+
+                    }
+                    resourceUri = new Uri("Images/clickedbomb.jpg", UriKind.Relative);
+                    streamInfo = Application.GetResourceStream(resourceUri);
+                    temp = BitmapFrame.Create(streamInfo.Stream);
+                    brush = new ImageBrush();
+                    brush.ImageSource = temp;
+                    button.Background = brush;
                     WriteScore();
                     /*GenerateBombsCordinates();
                     GenereateGridButtons();
@@ -357,11 +557,11 @@ namespace Miny
 
                 }
             }
-            
 
-            
-            
-           
+
+
+            //Smile.Source = new BitmapImage(new Uri(@"/Images/smileface.jpg", UriKind.Relative));
+
         }
         private void GenerateBombsCordinates()
         {
@@ -386,9 +586,13 @@ namespace Miny
 
                     if (Cordinates.Count() == 0)
                     {
-                        Cordinates.Add(curcor);
-                        BombNum--;
-                        done = true;
+                        if (curcor.col != BlockedCor.col && curcor.row != BlockedCor.row)
+                        {
+                            Cordinates.Add(curcor);
+                            BombNum--;
+                            done = true;
+                        }
+                        
                     }
                     else
                     {
@@ -399,6 +603,9 @@ namespace Miny
                             {
                                 Fine = false;
 
+                            }else if (curcor.col == BlockedCor.col && curcor.row == BlockedCor.row)
+                            {
+                                Fine = false;
                             }
 
                         }
@@ -409,26 +616,16 @@ namespace Miny
                             done = true;
                         }
                     }
-
-
-
-
-
-
-
-
                 }
-
-
             }
         }
 
         private void GenereateGridButtons()
         {
-           BtnList.Clear();
+            BtnList.Clear();
             int DH = int.Parse(Height_.Text);
             int DW = int.Parse(Width_.Text);
-            Uri resourceUri = new Uri("Images/test.png", UriKind.Relative);
+            Uri resourceUri = new Uri("Images/tile.jpg", UriKind.Relative);
             StreamResourceInfo streamInfo = Application.GetResourceStream(resourceUri);
             BitmapFrame temp = BitmapFrame.Create(streamInfo.Stream);
             var brush = new ImageBrush();
@@ -451,10 +648,7 @@ namespace Miny
                     MyControl1.MouseRightButtonDown += new MouseButtonEventHandler(MouseRightClick);
                     MyControl1.HasFalg = false;
                     MyControl1.Background = brush;
-
-
-
-
+                    MyControl1.Checked = false;
 
 
                     foreach (cor bombcor in Cordinates)
@@ -468,9 +662,6 @@ namespace Miny
                             }
                         }
                     }
-
-
-
                     
                     BtnList.Add(MyControl1);
                     count++;
@@ -488,9 +679,14 @@ namespace Miny
             FlaggedCordinates.Clear();
             BtnsToCheckList.Clear();
             BtnList.Clear();
-            GenerateBombsCordinates();
+            time = 0;
+
+            //GenerateBombsCordinates();
             GenereateGridButtons();
             RegenerateGrid();
+            firstlick = true;
+            bombtodiscover = int.Parse(BombNum_.Text);
+            EditBmbCnt();
         }
     }
 }

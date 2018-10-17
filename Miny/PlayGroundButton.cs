@@ -15,6 +15,7 @@ namespace Miny
         public int Col_ { get; set; }
         public bool IsBomb { get; set; }
         public bool HasFalg { get; set; }
+        public bool Checked { get; set; }
         
     }
 }

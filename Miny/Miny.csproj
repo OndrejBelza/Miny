@@ -114,10 +114,44 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\test.PNG" />
+    <Resource Include="Images\bmbcnt1.jpg" />
+    <Resource Include="Images\bmbcnt2.jpg" />
+    <Resource Include="Images\bmbcnt3.jpg" />
+    <Resource Include="Images\bmbcnt4.jpg" />
+    <Resource Include="Images\bmbcnt5.jpg" />
+    <Resource Include="Images\bmbcnt6.jpg" />
+    <Resource Include="Images\bmbcnt7.jpg" />
+    <Resource Include="Images\bmbcnt8.jpg" />
+    <Resource Include="Images\emptytile.jpg" />
+    <Resource Include="Images\flag.jpg" />
+    <Resource Include="Images\tile.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\flag.PNG" />
+    <Resource Include="Images\bmb.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\clickedbomb.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\badguess.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\cislo0.jpg" />
+    <Resource Include="Images\cislo1.jpg" />
+    <Resource Include="Images\cislo2.jpg" />
+    <Resource Include="Images\cislo3.jpg" />
+    <Resource Include="Images\cislo4.jpg" />
+    <Resource Include="Images\cislo5.jpg" />
+    <Resource Include="Images\cislo6.jpg" />
+    <Resource Include="Images\cislo7.jpg" />
+    <Resource Include="Images\cislo8.jpg" />
+    <Resource Include="Images\cislo9.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\clickface.jpg" />
+    <Resource Include="Images\lostface.jpg" />
+    <Resource Include="Images\smileface.jpg" />
+    <Resource Include="Images\winface.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
